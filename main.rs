@@ -97,13 +97,13 @@ fn concat_videos(save_path: &str) -> Result<(), std::io::Error> {
                                 .output()
                                 .expect("failed to execute process");
 
-    let _ = output.stdout;    
+    output.stdout;    
     Ok(())
 }
 
 fn main() {
-    let mut file_path = "geohot.mp4";
-    let save_path = "geohot - res.mp4";
+    let mut file_path = "name.wav";
+    let save_path = format!("{} - res.wav", file_path);
     let q = 85;
     let cut_duration = 0.4;
     let add_smooth_sec = 0.15;
@@ -183,7 +183,6 @@ fn main() {
             let threshold = percentile(no_zero_wave, q);
             let under_ts_vec = get_under_threshold(above_zero_wave.clone(), threshold, cut_duration, sample_rate as i32, add_smooth_sec);
             let keeps_rate = get_keep_rate(under_ts_vec.clone(), above_zero_wave.len() - 1);
-        
 
             // mp4 save
             if save_path.contains("mp4") {
@@ -201,11 +200,10 @@ fn main() {
                         .expect("failed to execute process");
                 }
 
-                //concat and delete temp videos
-                let _ = concat_videos(save_path);
-                let _ = fs::remove_file("temp.txt");
-                let _ = fs::remove_file("temp.wav");
-                let _ = fs::remove_dir_all("temp");
+                // concat and delete temp videos
+                concat_videos(&save_path).unwrap();
+                fs::remove_file("temp.txt").unwrap();
+                fs::remove_dir_all("temp").unwrap();
 
                 println!("Complete: {}", save_path);
 
@@ -228,6 +226,9 @@ fn main() {
                     writer.write_sample(sample).unwrap();
                 }
             }
+
+            // remove temp.wav
+            fs::remove_file("temp.wav").unwrap();
         }
     }
 }
